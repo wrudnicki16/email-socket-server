@@ -26,30 +26,32 @@ host = ''
 
 # bind socket and listen for connections
 try:
-  s.bind((host, port))
+    s.bind((host, port))
 except socket.error as e:
-  print(str(e))
+    print(str(e))
 
 print('waiting for a connection...')
 
 s.listen(5)
 
 def threaded_client(conn):
-  conn.send(str.encode('Welcome, type your info\n'))
-  while True:
-    data = conn.recv(2048)
+    conn.send(str.encode('Welcome, type your info\n'))
+    while True:
+        data = conn.recv(2048)
+        reply = handle_data(data)
+        # reply = 'Server output: ' + data.decode('utf-8')
+        if not data:
+            break
+        conn.sendall(str.encode(reply))
 
-    reply = 'Server output: ' + data.decode('utf-8')
-    if not data:
-      break
-    
-    conn.sendall(str.encode(reply))
+    conn.close()
 
-  conn.close()
+def handle_data(data):
+  string = data.decode('utf-8')
 
 # Establish a connection with the client (socket must be listening)
 while True:
-  conn, addr = s.accept()
-  print('connected to: ' + addr[0] + ':' + str(addr[1]))
+    conn, addr = s.accept()
+    print('connected to: ' + addr[0] + ':' + str(addr[1]))
 
-  _thread.start_new_thread(threaded_client, (conn, ))
+    _thread.start_new_thread(threaded_client, (conn, ))
