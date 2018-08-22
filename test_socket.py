@@ -1,6 +1,7 @@
 import socket
 import sys
 import _thread
+import requests
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -47,7 +48,19 @@ def threaded_client(conn):
     conn.close()
 
 def handle_data(data):
-  string = data.decode('utf-8')
+    string = data.decode('utf-8')
+    if string.startswith('http://') or string.startswith('https://'):
+        print('hopefully this is ')
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
+        }
+        req = requests.get(string, headers=headers)
+        print(req.content)
+
+        return 'Here is the src info for this url, that is if you can call get on it:\n\n' + req.content.decode('utf-8')
+        
+
+    return 'Server response: ' + string
 
 # Establish a connection with the client (socket must be listening)
 while True:
